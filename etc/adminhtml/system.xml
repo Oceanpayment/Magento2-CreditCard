@@ -23,7 +23,7 @@
                     <label>SecureCode</label>
                     <can_be_empty>0</can_be_empty>
                 </field>
-                <field id="gateway_url" translate="label" type="text" sortOrder="7" showInDefault="1" showInWebsite="1" showInStore="0">
+                <field id="gateway_url" translate="label" type="select" sortOrder="7" showInDefault="1" showInWebsite="1" showInStore="0">
                     <label>Gateway URL</label>
                     <source_model>Oceanpayment\Creditcard\Model\Source\GatewayURL</source_model>
                 </field>
