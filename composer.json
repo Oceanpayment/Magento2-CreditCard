@@ -1,5 +1,5 @@
 {
-    "name": "oceanpayment/module-creditcard",
+    "name": "oceanpayment/creditcard",
     "description": "Accept payments using Oceanpayment Creditcard payment gateway",
     "type": "magento2-module",
     "version": "2.0.2",
