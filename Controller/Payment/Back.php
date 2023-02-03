@@ -85,14 +85,14 @@ class Back extends \Magento\Framework\App\Action\Action implements CsrfAwareActi
     public function execute()
     {
         //交易推送类型
-        $this->returnLog(self::BrowserReturn, $_REQUEST);
+        $this->returnLog(self::BrowserReturn, $this->getRequest());
 
         //载入模块
         $model = $this->_paymentMethod;      
 
-        $order = $this->_orderFactory->create()->loadByIncrementId($_REQUEST['order_number']);
+        $order = $this->_orderFactory->create()->loadByIncrementId($this->getRequest()->getParam('order_number'));
 
-        $history = ' (payment_id:'.$_REQUEST['payment_id'].' | order_number:'.$_REQUEST['order_number'].' | '.$_REQUEST['order_currency'].':'.$_REQUEST['order_amount'].' | payment_details:'.$_REQUEST['payment_details'].')';
+        $history = ' (payment_id:'.$this->getRequest()->getParam('payment_id').' | order_number:'.$this->getRequest()->getParam('order_number').' | '.$this->getRequest()->getParam('order_currency').':'.$this->getRequest()->getParam('order_amount').' | payment_details:'.$this->getRequest()->getParam('payment_details').')';
 
         switch($this->validated($order)){
             case 1:
@@ -120,7 +120,7 @@ class Back extends \Magento\Framework\App\Action\Action implements CsrfAwareActi
                 $order->addStatusToHistory($model->getConfigData('failure_order_status'), __(self::BrowserReturn.'Payment Failed!'.$history));
                 $order->save();
 
-                $this->messageManager->addError(__('Payment Failed! '.$_REQUEST['payment_details']));
+                $this->messageManager->addError(__('Payment Failed! '.$this->getRequest()->getParam('payment_details')));
                 $url = 'checkout/onepage/failure';
                 break;
             case -1:
@@ -143,7 +143,7 @@ class Back extends \Magento\Framework\App\Action\Action implements CsrfAwareActi
                 $order->addStatusToHistory($model->getConfigData('high_risk_order_status'), __(self::BrowserReturn.'(High Risk)Payment Failed!'.$history));
                 $order->save();
 
-                $this->messageManager->addError(__('Payment Failed! '.$_REQUEST['payment_details']));
+                $this->messageManager->addError(__('Payment Failed! '.$this->getRequest()->getParam('payment_details')));
                 $url = 'checkout/onepage/failure';
                 break;
             case '20061':
@@ -174,7 +174,7 @@ class Back extends \Magento\Framework\App\Action\Action implements CsrfAwareActi
         $account          = $model->getConfigData('account');
 
         //返回终端号
-        $terminal         = $_REQUEST['terminal'];
+        $terminal         = $this->getRequest()->getParam('terminal');
         
         //匹配终端号   判断是否3D交易
         if($terminal == $model->getConfigData('terminal')){
@@ -187,47 +187,40 @@ class Back extends \Magento\Framework\App\Action\Action implements CsrfAwareActi
         }
         
         //返回Oceanpayment的支付唯一号
-        $payment_id       = $_REQUEST['payment_id'];
+        $payment_id       = $this->getRequest()->getParam('payment_id');
         
         //返回网站订单号
-        $order_number     = $_REQUEST['order_number'];
+        $order_number     = $this->getRequest()->getParam('order_number');
         
         //返回交易币种
-        $order_currency   = $_REQUEST['order_currency'];
+        $order_currency   = $this->getRequest()->getParam('order_currency');
         
         //返回交易金额
-        $order_amount     = $_REQUEST['order_amount'];
+        $order_amount     = $this->getRequest()->getParam('order_amount');
         
         //返回交易状态
-        $payment_status   = $_REQUEST['payment_status'];
+        $payment_status   = $this->getRequest()->getParam('payment_status');
         
         //返回支付详情
-        $payment_details  = $_REQUEST['payment_details'];
-        
-        //用于支付结果页面显示
-        $_SESSION['payment_details'] = $payment_details;
-        
-        //用于支付结果页面显示响应代码
-        $getErrorCode                = explode(':', $payment_details);  
-        $_SESSION['errorCode']       = $getErrorCode[0];
-        
-        //返回解决办法
-        $_SESSION['payment_solutions']= $_REQUEST['payment_solutions'];
+        $payment_details  = $this->getRequest()->getParam('payment_details');
+
+//用于支付结果页面显示响应代码
+        $getErrorCode                = explode(':', $payment_details);
         
         //返回备注
-        $order_notes       = $_REQUEST['order_notes'];
+        $order_notes       = $this->getRequest()->getParam('order_notes');
         
         //未通过的风控规则
-        $payment_risk      = $_REQUEST['payment_risk'];
+        $payment_risk      = $this->getRequest()->getParam('payment_risk');
         
         //返回支付信用卡卡号
-        $card_number       = $_REQUEST['card_number'];
+        $card_number       = $this->getRequest()->getParam('card_number');
         
         //返回交易类型
-        $payment_authType  = $_REQUEST['payment_authType'];
+        $payment_authType  = $this->getRequest()->getParam('payment_authType');
         
         //返回数据签名
-        $back_signValue    = $_REQUEST['signValue'];
+        $back_signValue    = $this->getRequest()->getParam('signValue');
         
         //SHA256加密
         $local_signValue = hash("sha256",$account.$terminal.$order_number.$order_currency.$order_amount.$order_notes.$card_number.
@@ -293,7 +286,7 @@ class Back extends \Magento\Framework\App\Action\Action implements CsrfAwareActi
      */
     public function getParentLocationReplace($url)
     {
-        echo '<script type="text/javascript">parent.location.replace("'.$url.'");</script>';
+        return '<script type="text/javascript">parent.location.replace("'.$url.'");</script>';
     }
 
     public function createCsrfValidationException(RequestInterface $request): ?InvalidRequestException

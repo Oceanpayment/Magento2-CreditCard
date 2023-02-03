@@ -82,24 +82,24 @@ class Notice extends \Magento\Framework\App\Action\Action
         if($this->xml_parser($xml_str)){
             $xml = simplexml_load_string($xml_str);
                 
-            //把推送参数赋值到$_REQUEST
-            $_REQUEST['response_type']    = (string)$xml->response_type;
-            $_REQUEST['account']          = (string)$xml->account;
-            $_REQUEST['terminal']         = (string)$xml->terminal;
-            $_REQUEST['payment_id']       = (string)$xml->payment_id;
-            $_REQUEST['order_number']     = (string)$xml->order_number;
-            $_REQUEST['order_currency']   = (string)$xml->order_currency;
-            $_REQUEST['order_amount']     = (string)$xml->order_amount;
-            $_REQUEST['payment_status']   = (string)$xml->payment_status;
-            $_REQUEST['payment_details']  = (string)$xml->payment_details;
-            $_REQUEST['signValue']        = (string)$xml->signValue;
-            $_REQUEST['order_notes']      = (string)$xml->order_notes;
-            $_REQUEST['card_number']      = (string)$xml->card_number;
-            $_REQUEST['payment_authType'] = (string)$xml->payment_authType;
-            $_REQUEST['payment_risk']     = (string)$xml->payment_risk;
-            $_REQUEST['methods']          = (string)$xml->methods;
-            $_REQUEST['payment_country']  = (string)$xml->payment_country;
-            $_REQUEST['payment_solutions']= (string)$xml->payment_solutions;
+            //把推送参数赋值到$return_info
+            $return_info['response_type']    = (string)$xml->response_type;
+            $return_info['account']          = (string)$xml->account;
+            $return_info['terminal']         = (string)$xml->terminal;
+            $return_info['payment_id']       = (string)$xml->payment_id;
+            $return_info['order_number']     = (string)$xml->order_number;
+            $return_info['order_currency']   = (string)$xml->order_currency;
+            $return_info['order_amount']     = (string)$xml->order_amount;
+            $return_info['payment_status']   = (string)$xml->payment_status;
+            $return_info['payment_details']  = (string)$xml->payment_details;
+            $return_info['signValue']        = (string)$xml->signValue;
+            $return_info['order_notes']      = (string)$xml->order_notes;
+            $return_info['card_number']      = (string)$xml->card_number;
+            $return_info['payment_authType'] = (string)$xml->payment_authType;
+            $return_info['payment_risk']     = (string)$xml->payment_risk;
+            $return_info['methods']          = (string)$xml->methods;
+            $return_info['payment_country']  = (string)$xml->payment_country;
+            $return_info['payment_solutions']= (string)$xml->payment_solutions;
 
 
             //交易推送类型
@@ -109,16 +109,16 @@ class Notice extends \Magento\Framework\App\Action\Action
             //载入模块
             $model = $this->_paymentMethod;      
 
-            $order = $this->_orderFactory->create()->loadByIncrementId($_REQUEST['order_number']);
+            $order = $this->_orderFactory->create()->loadByIncrementId($return_info['order_number']);
 
-            $history = ' (payment_id:'.$_REQUEST['payment_id'].' | order_number:'.$_REQUEST['order_number'].' | '.$_REQUEST['order_currency'].':'.$_REQUEST['order_amount'].' | payment_details:'.$_REQUEST['payment_details'].')';
+            $history = ' (payment_id:'.$return_info['payment_id'].' | order_number:'.$return_info['order_number'].' | '.$return_info['order_currency'].':'.$return_info['order_amount'].' | payment_details:'.$return_info['payment_details'].')';
 
             //预授权结果推送
             $authType = '';
-            if($_REQUEST['payment_authType'] == 1){
-                if($_REQUEST['payment_status'] == 1){
+            if($return_info['payment_authType'] == 1){
+                if($return_info['payment_status'] == 1){
                     $authType = '(Capture)';
-                }elseif($_REQUEST['payment_status'] == 0){
+                }elseif($return_info['payment_status'] == 0){
                     $authType = '(Void)';
                 }
             }
@@ -177,8 +177,8 @@ class Notice extends \Magento\Framework\App\Action\Action
 
             }
 
-            echo "receive-ok";
-            exit;
+            return "receive-ok";
+
 
         }
 
@@ -194,7 +194,7 @@ class Notice extends \Magento\Framework\App\Action\Action
         $account          = $model->getConfigData('account');
 
         //返回终端号
-        $terminal         = $_REQUEST['terminal'];
+        $terminal         = $this->getRequest()->getParam('terminal');
         
         //匹配终端号   判断是否3D交易
         if($terminal == $model->getConfigData('terminal')){
@@ -207,43 +207,43 @@ class Notice extends \Magento\Framework\App\Action\Action
         }
         
         //返回Oceanpayment的支付唯一号
-        $payment_id       = $_REQUEST['payment_id'];
+        $payment_id       = $this->getRequest()->getParam('payment_id');
         
         //返回网站订单号
-        $order_number     = $_REQUEST['order_number'];
+        $order_number     = $this->getRequest()->getParam('order_number');
         
         //返回交易币种
-        $order_currency   = $_REQUEST['order_currency'];
+        $order_currency   = $this->getRequest()->getParam('order_currency');
         
         //返回交易金额
-        $order_amount     = $_REQUEST['order_amount'];
+        $order_amount     = $this->getRequest()->getParam('order_amount');
         
         //返回交易状态
-        $payment_status   = $_REQUEST['payment_status'];
+        $payment_status   = $this->getRequest()->getParam('payment_status');
         
         //返回支付详情
-        $payment_details  = $_REQUEST['payment_details'];
+        $payment_details  = $this->getRequest()->getParam('payment_details');
         
         //获取响应代码
         $getErrorCode     = explode(':', $payment_details);  
         
         //返回解决办法
-        $payment_solutions = $_REQUEST['payment_solutions'];
+        $payment_solutions = $this->getRequest()->getParam('payment_solutions');
         
         //返回备注
-        $order_notes       = $_REQUEST['order_notes'];
+        $order_notes       = $this->getRequest()->getParam('order_notes');
         
         //未通过的风控规则
-        $payment_risk      = $_REQUEST['payment_risk'];
+        $payment_risk      = $this->getRequest()->getParam('payment_risk');
         
         //返回支付信用卡卡号
-        $card_number       = $_REQUEST['card_number'];
+        $card_number       = $this->getRequest()->getParam('card_number');
         
         //返回交易类型
-        $payment_authType  = $_REQUEST['payment_authType'];
+        $payment_authType  = $this->getRequest()->getParam('payment_authType');
         
         //返回数据签名
-        $back_signValue    = $_REQUEST['signValue'];
+        $back_signValue    = $this->getRequest()->getParam('signValue');
         
         //SHA256加密
         $local_signValue = hash("sha256",$account.$terminal.$order_number.$order_currency.$order_amount.$order_notes.$card_number.
