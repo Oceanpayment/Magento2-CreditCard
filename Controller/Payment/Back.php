@@ -51,8 +51,7 @@ class Back extends \Magento\Framework\App\Action\Action implements CsrfAwareActi
         \Magento\Sales\Model\Order\Email\Sender\CreditmemoSender $creditmemoSender,
         \Magento\Sales\Model\Order\Email\Sender\OrderSender $orderSender,
         \Magento\Framework\Url $urlBuilder,
-        \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
-        \Magento\Framework\View\Result\PageFactory $resultPageFactory
+        \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig
     ) {
         $this->_customerSession = $customerSession;
         $this->checkoutSession = $checkoutSession;
@@ -64,7 +63,6 @@ class Back extends \Magento\Framework\App\Action\Action implements CsrfAwareActi
         $this->_paymentMethod = $paymentMethod;
         $this->creditmemoSender = $creditmemoSender;
         $this->orderSender = $orderSender;
-        $this->resultPageFactory = $resultPageFactory;
     }
 
 
@@ -159,13 +157,8 @@ class Back extends \Magento\Framework\App\Action\Action implements CsrfAwareActi
             default:
 
         }
-
-        $resultPage = $this->resultPageFactory->create();
-        $resultPage->getConfig()->getTitle()->set(__('Credit/Debit Card'));
-        return $resultPage;
-//        $url = $this->urlBuilder->getUrl($url);
-//        $this->getParentLocationReplace($url);
-
+        $url = $this->urlBuilder->getUrl($url);
+        $this->_redirect($url);
     }
 
 
