@@ -51,7 +51,8 @@ class Back extends \Magento\Framework\App\Action\Action implements CsrfAwareActi
         \Magento\Sales\Model\Order\Email\Sender\CreditmemoSender $creditmemoSender,
         \Magento\Sales\Model\Order\Email\Sender\OrderSender $orderSender,
         \Magento\Framework\Url $urlBuilder,
-        \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig
+        \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
+        \Magento\Framework\View\Result\PageFactory $resultPageFactory
     ) {
         $this->_customerSession = $customerSession;
         $this->checkoutSession = $checkoutSession;
@@ -63,6 +64,7 @@ class Back extends \Magento\Framework\App\Action\Action implements CsrfAwareActi
         $this->_paymentMethod = $paymentMethod;
         $this->creditmemoSender = $creditmemoSender;
         $this->orderSender = $orderSender;
+        $this->resultPageFactory = $resultPageFactory;
     }
 
 
@@ -85,7 +87,7 @@ class Back extends \Magento\Framework\App\Action\Action implements CsrfAwareActi
     public function execute()
     {
         //交易推送类型
-        $this->returnLog(self::BrowserReturn, $this->getRequest());
+        $this->returnLog(self::BrowserReturn, $this->getRequest()->getPost());
 
         //载入模块
         $model = $this->_paymentMethod;      
@@ -158,9 +160,11 @@ class Back extends \Magento\Framework\App\Action\Action implements CsrfAwareActi
 
         }
 
-
-        $url = $this->urlBuilder->getUrl($url);
-        $this->getParentLocationReplace($url);
+        $resultPage = $this->resultPageFactory->create();
+        $resultPage->getConfig()->getTitle()->set(__('Credit/Debit Card'));
+        return $resultPage;
+//        $url = $this->urlBuilder->getUrl($url);
+//        $this->getParentLocationReplace($url);
 
     }
 
