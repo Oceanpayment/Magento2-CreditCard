@@ -94,6 +94,10 @@ class Back extends \Magento\Framework\App\Action\Action implements CsrfAwareActi
 
         $history = ' (payment_id:'.$this->getRequest()->getParam('payment_id').' | order_number:'.$this->getRequest()->getParam('order_number').' | '.$this->getRequest()->getParam('order_currency').':'.$this->getRequest()->getParam('order_amount').' | payment_details:'.$this->getRequest()->getParam('payment_details').')';
 
+        $payment = $order->getPayment();
+        $payment->setCcTransId($this->getRequest()->getParam('payment_id'));
+        $payment->setLastTransId($this->getRequest()->getParam('payment_id'))->setIsTransactionClosed(0);
+
         switch($this->validated($order)){
             case 1:
                 //支付成功

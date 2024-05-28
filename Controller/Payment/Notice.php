@@ -113,6 +113,10 @@ class Notice extends \Magento\Framework\App\Action\Action
 
             $history = ' (payment_id:'.$return_info['payment_id'].' | order_number:'.$return_info['order_number'].' | '.$return_info['order_currency'].':'.$return_info['order_amount'].' | payment_details:'.$return_info['payment_details'].')';
 
+            $payment = $order->getPayment();
+            $payment->setCcTransId($return_info['payment_id']);
+            $payment->setLastTransId($return_info['payment_id'])->setIsTransactionClosed(0);
+
             //预授权结果推送
             $authType = '';
             if($return_info['payment_authType'] == 1){
